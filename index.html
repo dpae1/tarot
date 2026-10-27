@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나의 타로 결과</title>
+<style>
+:root{--bg:#faf7f2;--fg:#2b2433;--card:#fff;--mut:#7a7083;--ac:#7b5ea7;--bd:#e6dfee;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17131d;--fg:#eee9f5;--card:#241e2e;--mut:#a79eb4;--ac:#b79df0;--bd:#3a3147;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17131d;--fg:#eee9f5;--card:#241e2e;--mut:#a79eb4;--ac:#b79df0;--bd:#3a3147;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 "Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+main{max-width:560px;margin:0 auto;padding:24px 18px 48px}
+h1{font-size:22px;text-align:center;margin:8px 0 4px}
+.sub{text-align:center;color:var(--mut);font-size:14px;margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:14px}
+.lab{color:var(--ac);font-size:13px;font-weight:700;letter-spacing:.04em}
+.nm{font-size:20px;font-weight:700;margin:2px 0 6px}
+.dir{display:inline-block;font-size:12px;border:1px solid var(--ac);color:var(--ac);border-radius:99px;padding:0 9px;margin-left:6px;vertical-align:middle}
+.card p{margin:6px 0 0}
+.sum{border-color:var(--ac)}
+button{display:block;margin:18px auto 0;padding:10px 22px;border-radius:99px;border:1px solid var(--ac);background:transparent;color:var(--ac);font:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>🔮 나의 타로 결과</h1>
+<p class="sub">과거 · 현재 · 미래를 이어서 읽어 드릴게요</p>
+<div id="out"></div>
+<button id="again">다시 뽑아보기 (테스트)</button>
+</main>
+<script>
+// 카드 번호 순서: 0~21 메이저, 22~35 완드, 36~49 컵, 50~63 소드, 64~77 펜타클 (아두이노 코드와 동일)
+// 메이저: 이름|정방향|역방향|점수 / 마이너: 정방향|역방향|점수 (점수: 정방향 자리, 역방향 자리, 2=좋음 1=보통 0=조심)
+const MAJ=["바보|새로운 시작과 자유로운 모험|무모함과 준비 없는 출발|21","마법사|뜻을 현실로 만드는 능력|재능의 낭비와 속임수|20","여사제|직관과 숨겨진 지혜|드러나지 않은 비밀과 혼란|10","여황제|풍요와 따뜻한 돌봄|지나친 집착과 의존|20","황제|안정과 확고한 질서|융통성 없는 통제|21","교황|전통과 믿을 만한 조언|틀에 갇힌 고집|11","연인|사랑과 중요한 선택|엇갈림과 불균형|20","전차|의지로 얻는 승리|방향을 잃은 질주|20","힘|부드러운 용기와 인내|자신에 대한 의심|20","은둔자|고요한 성찰의 시간|지나친 고립|11","운명의 수레바퀴|운이 바뀌는 전환점|잠시 막힌 흐름|21","정의|공정한 판단과 균형|불공평함과 책임 회피|10","매달린 사람|멈춤 속에서 얻는 새로운 시각|헛된 기다림|11","죽음|끝과 함께 오는 변화|변화를 거부하는 정체|11","절제|조화와 균형 잡힌 흐름|지나침과 불균형|20","악마|유혹과 집착의 굴레|굴레에서 벗어나는 해방|02","탑|갑작스러운 변화와 충격|위기를 가까스로 넘기는 회복|01","별|희망과 치유|희망을 잃은 낙담|20","달|불안과 모호한 감정|안개가 걷히는 깨달음|02","태양|밝은 성공과 기쁨|잠시 가려진 기쁨|21","심판|새로운 시작을 위한 부름|미루어 둔 결단|21","세계|온전한 완성과 성취|마무리 직전의 아쉬움|21"];
+const MIN=[
+["열정의 불씨|시작의 지연|21","계획과 선택의 순간|두려움에 멈춘 발걸음|11","넓어지는 가능성|예상보다 늦어지는 소식|21","화목한 축하의 분위기|불안한 집안 분위기|20","의견 충돌과 경쟁|갈등이 가라앉는 휴전|01","인정받는 승리|꺾인 자신감|20","물러서지 않는 방어|버티기 힘든 압박|11","빠르게 오는 소식과 진행|엇갈리는 속도|20","끝까지 버티는 끈기|지친 마음|11","짊어진 무거운 책임|짐을 내려놓는 순간|01","호기심 가득한 새 소식|성급한 시작|11","열정적인 돌진|무모한 충동|11","매력과 자신감|질투와 변덕|20","이끄는 리더십|독단적인 태도|20"],
+["사랑의 시작|막혀 있는 감정|20","서로 맞닿는 마음|어긋나는 관계|20","함께하는 즐거움|지나친 소문과 방종|20","무심함과 권태|새로운 기회에 눈뜸|12","아쉬움과 상실감|상처에서의 회복|02","따뜻한 추억|과거에 머문 마음|21","많은 선택지와 환상|현실을 직시함|12","떠남과 새로운 탐색|미련 때문에 머묾|11","소원이 이루어지는 만족|지나친 욕심|20","가족과 함께하는 행복|흔들리는 화목|20","설레는 메시지|미숙한 감정 표현|11","낭만적인 제안|변덕스러운 기분|11","깊은 공감과 배려|감정에 휘둘림|20","감정을 다스리는 여유|감정의 폭발|20"],
+["선명한 진실과 결단|혼란스러운 판단|20","팽팽한 망설임|드러나는 진실|11","가슴 아픈 이별|서서히 아물어 가는 상처|02","충전을 위한 휴식|다시 일어설 준비|12","상처뿐인 다툼|화해와 뒤돌아봄|01","잔잔한 곳으로의 이동|떠나지 못하는 발걸음|21","숨겨진 계략|들통 난 거짓말|01","스스로 만든 속박|자유를 향한 첫걸음|02","밤을 지새우는 걱정|걱정이 줄어드는 안도|02","바닥을 찍은 끝|다시 시작할 회복|02","날카로운 호기심|섣부른 말|11","빠르고 단호한 행동|충동적인 돌진|11","냉철하고 솔직한 판단|차가운 말투|20","이성적인 판단력|냉혹한 지배|20"],
+["손에 잡히는 기회|놓쳐 버린 기회|20","균형을 잡는 줄타기|과한 일정의 압박|11","협력으로 만드는 성과|어긋나는 팀워크|20","지키려는 안정|움켜쥔 집착|11","빠듯한 형편|어려움 끝의 회복|02","나눔과 균형 있는 주고받음|한쪽으로 기운 거래|21","기다림 끝의 결실|조급한 마음|11","꾸준한 기술 연마|대충 하는 습관|20","스스로 이룬 여유|과소비와 의존|20","오래가는 안정과 유산|흔들리는 기반|20","배우려는 성실함|게으른 시작|11","묵묵한 꾸준함|답답한 정체|11","따뜻한 풍요와 돌봄|소홀해진 관리|20","든든한 재물과 안정|인색한 태도|20"]];
+const SUIT=["완드","컵","소드","펜타클"];
+const RANK=["에이스","2","3","4","5","6","7","8","9","10","페이지","나이트","퀸","킹"];
+const LEAD=[p=>`지난 시간 동안 당신은 ${p}의 영향 아래에 있었어요.`,p=>`지금 당신은 ${p}의 한가운데에 서 있어요.`,p=>`앞으로 ${p}의 기운이 다가올 거예요.`];
+const ADV=["무리하지 말고 한 템포 쉬어 가도 괜찮아요.","차분히 상황을 살피면 답이 보일 거예요.","좋은 기운이니 자신감을 가져도 좋아요."];
+const LAB=["과거","현재","미래"];
+
+function card(i,rev){
+  let p,name;
+  if(i<22){p=MAJ[i].split("|");name=p.shift();}
+  else{const m=i-22,s=Math.floor(m/14),r=m%14;p=MIN[s][r].split("|");name=SUIT[s]+" "+RANK[r];}
+  return {name,rev,phrase:rev?p[1]:p[0],score:+p[2][rev?1:0]};
+}
+function parse(){
+  const raw=(location.hash.slice(1)||new URLSearchParams(location.search).get("c")||"").split("-");
+  if(raw.length!==3)return null;
+  const out=[];
+  for(const t of raw){const m=/^(\d{1,2})(r?)$/.exec(t);if(!m||+m[1]>77)return null;out.push(card(+m[1],m[2]==="r"));}
+  return out;
+}
+function render(cs){
+  const el=document.getElementById("out");
+  if(!cs){el.innerHTML='<div class="card"><p>결과를 읽지 못했어요. QR을 다시 찍거나 아래 버튼으로 테스트해 보세요.</p></div>';return;}
+  let h="";
+  cs.forEach((c,k)=>{
+    h+=`<div class="card"><div class="lab">${LAB[k]}</div><div class="nm">${c.name}<span class="dir">${c.rev?"역방향":"정방향"}</span></div><p>${LEAD[k](c.phrase)}</p><p>${ADV[c.score]}</p></div>`;
+  });
+  const [a,b,c]=cs, tot=a.score+b.score+c.score;
+  const flow=c.score>a.score?"시간이 갈수록 분위기가 나아지는 흐름이에요.":c.score<a.score?"앞으로 조금 더 신중함이 필요한 흐름이에요.":"비슷한 결의 기운이 이어지는 흐름이에요.";
+  const end=tot>=5?"전체적으로 밝은 운이에요. 지금의 방향을 믿고 한 걸음씩 나아가 보세요.":tot>=3?"좋은 점과 조심할 점이 함께 있어요. 균형을 잡으며 차분히 나아가면 좋은 결과가 있을 거예요.":"조금 힘든 시기일 수 있지만, 이 흐름은 곧 바뀔 수 있어요. 서두르지 말고 스스로를 먼저 돌봐 주세요.";
+  h+=`<div class="card sum"><div class="lab">종합 해석</div><p>${a.name}의 ${a.phrase}에서 시작해, ${b.name}의 ${b.phrase}을(를) 지나, ${c.name}의 ${c.phrase}(으)로 이어지는 이야기예요.</p><p>${flow} ${end}</p></div>`;
+  el.innerHTML=h;
+}
+function pick(){
+  const s=new Set();while(s.size<3)s.add(Math.floor(Math.random()*78));
+  location.hash=[...s].map(n=>n+(Math.random()<.5?"r":"")).join("-");
+}
+document.getElementById("again").onclick=pick;
+window.addEventListener("hashchange",()=>render(parse()));
+if(!location.hash&&!location.search)pick();else render(parse());
+</script>
+</body>
+</html>
